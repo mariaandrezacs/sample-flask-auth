@@ -101,6 +101,9 @@ def update_user(id_user):
 def delete_user(id_user):
     user = User.query.get(id_user)
 
+    if current_user.role != "admin":
+        return jsonify({"message": "Operação não permitida"}), 403
+
     if id_user == current_user.id:
         return jsonify({"message": "Deleção não permitida"}), 403
 
