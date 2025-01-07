@@ -13,4 +13,5 @@ services:
       # Opens port 3306 on the container
       - '3306'
     volumes:
-      - /d/github/sample-flask-auth/mysql
+      # - /d/github/sample-flask-auth/mysql # pc-home
+      - /home/andreza.santos@aditec.local/Documents/macsDev/sample-flask-auth/mysql # pc-work
