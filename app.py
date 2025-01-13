@@ -38,7 +38,8 @@ def login():
 
     if username and password:
         user = User.query.filter_by(username=username).first()
-        if user and bcrypt.checkpw(str.encode(password), str.encode(user.password)):
+        if user and bcrypt.checkpw(str.encode(password),
+                                   str.encode(user.password)):
             login_user(user)
             # print(current_user.is_authenticated)
             return jsonify({"message": "Autenticação realizada com sucesso"})
@@ -93,7 +94,8 @@ def update_user(id_user):
         db.session.commit()
 
         return jsonify({
-            "message": f"Usuario {id_user} atualizado com sucesso."})
+                "message": f"Usuario {id_user} atualizado com sucesso."
+            })
 
     return jsonify({"message": "Usuario não encontrado"}), 404
 
