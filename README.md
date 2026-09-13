@@ -1,29 +1,68 @@
-# sample-flask-auth
+# sample-flask-auth 2.0.0
 
-Repositório criado para armazenar o código da API de autenticação com banco de dados MySQL.
+API REST de autenticação e gerenciamento de usuários em Flask, refatorada com princípios de engenharia de software, arquitetura em camadas, padrões de projeto e boas práticas.
 
-## Sobre o projeto
+## Sobre a v2.0.0
 
-API REST desenvolvida em Flask para autenticação e gerenciamento de usuários, com persistência em banco de dados MySQL. O projeto utiliza Flask-Login para controle de sessão e bcrypt para criptografia de senhas.
+A nova versão separa responsabilidades em camadas claras:
+
+- **Domain**: entidades, value objects, exceções de domínio e contratos de repositório.
+- **Application**: casos de uso / serviços e DTOs.
+- **Infrastructure**: banco de dados (SQLAlchemy), repositórios concretos e criptografia (bcrypt).
+- **Interfaces**: rotas Flask e tratamento de erros.
+
+Padrões aplicados: Repository, Injeção de Dependências manual, DTOs, Factory de aplicação, separação por camadas e tratamento centralizado de erros.
+
+## Conceitos e padrões
+
+- **Arquitetura em camadas**: separação entre Domain, Application, Infrastructure e Interfaces, onde cada camada tem uma responsabilidade única.
+- **Clean Architecture / Ports and Adapters**: o domínio não depende de frameworks ou detalhes de banco, apenas de contratos abstratos.
+- **Repository Pattern**: `UserRepository` define a interface e `SqlAlchemyUserRepository` implementa o acesso ao banco, permitindo trocar a fonte de dados sem alterar regras de negócio.
+- **Injeção de Dependências**: `Container` orquestra as instâncias de repositório, hasher e serviços, desacoplando as camadas.
+- **Data Transfer Objects (DTOs)**: objetos imutáveis (`dataclasses`) que transportam dados entre as camadas sem expor as entidades de domínio.
+- **Factory Pattern**: `create_app` monta a aplicação Flask, registrando extensões, blueprints e handlers de erro de forma centralizada.
+- **Value Objects**: `Role` é um `Enum` que representa os papéis válidos do sistema, garantindo consistência.
+- **Tratamento centralizado de erros**: exceções de domínio são mapeadas para códigos HTTP uniformes em `interfaces/errors.py`.
 
 ## Tecnologias
 
-- Python
+- Python 3.11+
 - Flask
 - Flask-SQLAlchemy
 - Flask-Login
 - MySQL
 - bcrypt
 
-## Funcionalidades
+## Estrutura do projeto
 
-- Cadastro de usuários
-- Autenticação de usuários
-- Logout
-- Consulta de usuário
-- Atualização de senha
-- Exclusão de usuários (somente admin)
-- Controle de acesso baseado em roles (`user` e `admin`)
+```
+sample-flask-auth/
+├── .env.example
+├── wsgi.py
+├── run.py
+├── docker-compose.yml
+├── requirements.txt
+├── README.md
+├── src/
+│   └── sample_flask_auth/
+│       ├── __init__.py
+│       ├── config.py
+│       ├── container.py
+│       ├── domain.py
+│       ├── dto.py
+│       ├── services.py
+│       ├── infrastructure/
+│       │   ├── database.py
+│       │   ├── models.py
+│       │   ├── repositories.py
+│       │   └── security.py
+│       └── interfaces/
+│           ├── api.py
+│           └── errors.py
+└── tests/
+    ├── conftest.py
+    └── test_domain.py
+```
 
 ## Endpoints
 
@@ -32,7 +71,7 @@ API REST desenvolvida em Flask para autenticação e gerenciamento de usuários,
 | POST | `/login` | Realiza login do usuário | Não |
 | GET | `/logout` | Realiza logout do usuário | Sim |
 | POST | `/user` | Cria um novo usuário | Não |
-| GET | `/user/<id_user>` | Retorna o nome de usuário pelo ID | Sim |
+| GET | `/user/<id_user>` | Retorna os dados do usuário pelo ID | Sim |
 | PUT | `/user/<id_user>` | Atualiza a senha do usuário | Sim |
 | DELETE | `/user/<id_user>` | Deleta um usuário | Sim (admin) |
 
@@ -44,45 +83,35 @@ API REST desenvolvida em Flask para autenticação e gerenciamento de usuários,
 
 ## Como executar
 
-1. Suba o banco de dados com Docker Compose:
+1. Copie e ajuste as variáveis de ambiente:
+
+```bash
+cp .env.example .env
+```
+
+2. Suba o banco de dados com Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
 
-2. Crie um ambiente virtual e instale as dependências:
+3. Ative o ambiente virtual e instale as dependências:
 
 ```bash
-python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-3. Execute a aplicação:
+4. Execute a aplicação:
 
 ```bash
-python app.py
+python run.py
 ```
 
 A aplicação será iniciada em `http://127.0.0.1:5000`.
 
-## Configuração do banco de dados
+## Testes
 
-A conexão com o MySQL está configurada em `app.py`:
-
-```python
-"mysql+pymysql://root:admin123@127.0.0.1:3307/flask-crud"
-```
-
-## Estrutura do projeto
-
-```
-sample-flask-auth/
-├── app.py
-├── database.py
-├── docker-compose.yml
-├── requirements.txt
-├── README.md
-└── models/
-    └── user.py
+```bash
+pytest
 ```
