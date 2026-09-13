@@ -2,3 +2,5 @@
 max-line-length = 88
 import-order-style = isort
 ignore = D, I100
+per-file-ignores =
+    tests/*: S101, S106
